@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/settings"
+        android:orderInCategory="100"
+        android:icon="@drawable/ic_menu_about"
+        android:title="@string/settings"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/connect"
+        android:orderInCategory="100"
+        android:title=""
+        android:visible="true"
+        android:icon="@drawable/ic_menu_connect"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/connected"
+        android:orderInCategory="100"
+        android:title=""
+        android:icon="@drawable/ic_menu_connected"
+        android:visible="false"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/start"
+        android:orderInCategory="100"
+        android:title=""
+        android:visible="true"
+        android:icon="@drawable/ic_play_arrow_black_24dp"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/pause"
+        android:orderInCategory="100"
+        android:title=""
+        android:visible="false"
+        android:icon="@drawable/ic_pause_black_24dp"
+        app:showAsAction="always"/>
+    <item
+        android:id="@+id/change"
+        android:orderInCategory="100"
+        android:title=""
+        android:icon="@drawable/ic_menu_change"
+        android:visible="true"
+        app:showAsAction="always"/>
+
+    <item
+        android:id="@+id/about"
+        android:orderInCategory="100"
+        android:title="关于"
+        app:showAsAction="never"/>
+</menu>
