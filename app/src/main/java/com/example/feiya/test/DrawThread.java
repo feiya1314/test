@@ -13,13 +13,14 @@ import com.example.feiya.fft.RealDoubleFFT;
 import java.util.ArrayList;
 
 /**
+ *
  * Created by feiya on 2016/6/12.
  */
 public class DrawThread implements Runnable {
     private StrogeData strogeData;
 
-    private ArrayList<int[]> AfterFFT=new ArrayList<int[]>();
-    private ArrayList<int[]> Phase = new ArrayList<int[]>();
+    private ArrayList<int[]> AfterFFT=new ArrayList<>();
+    private ArrayList<int[]> Phase = new ArrayList<>();
 
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
@@ -28,8 +29,6 @@ public class DrawThread implements Runnable {
 
     private RealDoubleFFT realDoubleFFT=new RealDoubleFFT(1024);
     private Complex1D complex1D=new Complex1D();
-
-    private double[] tempRecdatas=new double[1024];
 
     private boolean Isdrawing=true;
     private int type=0x00;
@@ -62,6 +61,7 @@ public class DrawThread implements Runnable {
     @Override
     public void run() {
         int positon=0;
+        double[] tempRecdatas;
         while(Isdrawing){
             if(strogeData.IsOverRecDatas(positon)){
 
@@ -88,7 +88,7 @@ public class DrawThread implements Runnable {
             }
             else{
                 try {Thread.sleep(100);}catch (InterruptedException e){e.printStackTrace();}
-                continue;
+                //continue;
             }
         }
 
@@ -99,7 +99,6 @@ public class DrawThread implements Runnable {
     }
 
     private void drawAM(int[] am){
-        int shift=0;
         surfaceHolder=surfaceView.getHolder();
         Canvas canvas=surfaceHolder.lockCanvas();
         paint=new Paint();
@@ -132,8 +131,8 @@ public class DrawThread implements Runnable {
         localCanvas.drawLine(20.0F, -30 + surfaceView.getHeight(), 20.0F, 15.0F, paint);
         int oldX=25;
         int oldY=surfaceView.getHeight() / 2 - paramArrayOfInt[0];
-        int currentX=0;
-        int currentY=0;
+        int currentX;
+        int currentY;
         // Log.e("phase",String.valueOf(paramArrayOfInt[0]));
         for (int i = 1; i < paramArrayOfInt.length; i++)
         {
