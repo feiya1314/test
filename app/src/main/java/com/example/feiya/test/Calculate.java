@@ -1,8 +1,11 @@
 package com.example.feiya.test;
 
+import android.util.Log;
+
 import com.example.feiya.fft.Complex1D;
 
 /**
+ *
  * Created by feiya on 2016/5/15.
  */
 public class Calculate {
@@ -34,4 +37,33 @@ public class Calculate {
         }
         return Phase;
     }
+
+    public static double[] getdoubleShift(Complex1D complex1D){
+        double rad=Math.PI/180;
+        double pi=Math.PI;
+        double c=299792458;
+        double fs=1000000;
+        double tempConst=c/(2*pi*fs);
+
+        double up_80;
+        double up_90;
+        double up_100;
+        double low_90;
+        double low_80;
+
+        double[] shift=new double[2];
+
+        up_80=Math.atan2(complex1D.y[80],complex1D.x[80])/rad;
+        up_90=Math.atan2(complex1D.y[90],complex1D.x[90])/rad;
+        up_100=Math.atan2(complex1D.y[100],complex1D.x[100])/rad;
+        low_90=Math.atan2(complex1D.y[110],complex1D.x[110])/rad;
+        low_80=Math.atan2(complex1D.y[120],complex1D.x[120])/rad;
+
+        shift[0]=((up_80+low_80)/2-up_100)*tempConst;
+        shift[1]=((up_90+low_90)/2-up_100)*tempConst;
+
+        return shift;
+    }
+
+
 }

@@ -16,7 +16,6 @@ public class Process {
     private ArrayList GC_phase1=new ArrayList();
     private ArrayList GC_phase2=new ArrayList();
 
-    private boolean witchshift=true;
 
     private DrawThread drawThread;
     private ReceiveDataThread receiveDataThread;
@@ -80,11 +79,11 @@ public class Process {
         }
     }
     public void setWitchshift(){
-        if(witchshift){
-            witchshift=false;
+        if(drawThread.getShiftSwitch()){
+            drawThread.setShiftSwitch(false);
         }
         else{
-            witchshift=true;
+            drawThread.setShiftSwitch(true);
         }
     }
 

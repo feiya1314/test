@@ -3,6 +3,7 @@ package com.example.feiya.test;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -21,6 +22,7 @@ public class DrawThread implements Runnable {
 
     private ArrayList<int[]> AfterFFT=new ArrayList<>();
     private ArrayList<int[]> Phase = new ArrayList<>();
+    private ArrayList<double[]>Shift=new ArrayList<>();
 
     private SurfaceView surfaceView;
     private SurfaceHolder surfaceHolder;
@@ -32,6 +34,8 @@ public class DrawThread implements Runnable {
 
     private boolean Isdrawing=true;
     private int type=0x00;
+
+    private boolean shiftswitch=true;
 
     public DrawThread(StrogeData strogeData,SurfaceView surfaceView) {
         this.strogeData=strogeData;
@@ -56,12 +60,27 @@ public class DrawThread implements Runnable {
     public void startShift(){
         type=0x33;
     }
+    public boolean getShiftSwitch(){
+        return shiftswitch;
+    }
+
+    public void setShiftSwitch(boolean change){
+        shiftswitch=change;
+    }
+
+
 
 
     @Override
     public void run() {
         int positon=0;
         double[] tempRecdatas;
+        double[] formershift;
+        double[] currentshift;
+        //int oldX=0;
+        int oldY=0;
+        int currentX=0;
+        int currentY;
         while(Isdrawing){
             if(strogeData.IsOverRecDatas(positon)){
 
@@ -69,6 +88,7 @@ public class DrawThread implements Runnable {
                 realDoubleFFT.ft(tempRecdatas,complex1D);
                 AfterFFT.add(Calculate.getAm(complex1D));
                 Phase.add(Calculate.getIntPhase(complex1D));
+                Shift.add(Calculate.getdoubleShift(complex1D));
 
                 switch (type){
                     case 0x00:
@@ -82,6 +102,41 @@ public class DrawThread implements Runnable {
                         drawSignal(strogeData.readdata(positon));
                         break;
                     case 0x33:
+                        if(Shift.size()>1){
+                            if(shiftswitch) {
+                                if (currentX == 0) {
+                                    drawXY_shift("观测点一形变量");
+                                }
+                                formershift = Shift.get(positon-1);
+                                currentshift=Shift.get(positon);
+                                //currentX=oldX+2;
+                                currentY = (int) (currentshift[0]-formershift[0]);
+                                currentY=Math.abs(currentY)*100;
+                                Log.e("shift",String.valueOf(currentY));
+                                drawShift(currentX,oldY,currentX,currentY);
+                                currentX+=2;
+                                //oldY=currentY;
+                                if(currentX>1000){
+                                    currentX=0;
+                                }
+                            }
+                            else {
+                                if (currentX == 0) {
+                                    drawXY_shift("观测点二形变量");
+                                }
+                                formershift = Shift.get(positon-1);
+                                currentshift=Shift.get(positon);
+                                currentY = (int) (currentshift[1]-formershift[1]);
+                                currentY=Math.abs(currentY);
+                                Log.e("shift",String.valueOf(currentY));
+                                drawShift(currentX,oldY,currentX,currentY);
+                                currentX+=2;
+                                //oldY=currentY;
+                                if(currentX>1000){
+                                    currentX=0;
+                                }
+                            }
+                        }
                         break;
                 }
                 positon++;
@@ -171,5 +226,41 @@ public class DrawThread implements Runnable {
         localCanvas.save();
         this.surfaceHolder.unlockCanvasAndPost(localCanvas);
     }
+
+    private void drawXY_shift(String witch){
+        this.surfaceHolder = this.surfaceView.getHolder();
+        Canvas localCanvas = this.surfaceHolder.lockCanvas();
+        this.paint = new Paint();
+        this.paint.setColor(Color.RED);
+        this.paint.setTextSize(40.0F);
+        this.paint.setStrokeWidth(2.0F);
+        localCanvas.drawColor(Color.rgb(238, 238, 238));
+        localCanvas.drawText("形变量", 0, 3, 25.0F, 40.0F, this.paint);
+        localCanvas.drawText(witch,0,witch.length(),220,40,this.paint);
+        localCanvas.drawLine(20.0F, this.surfaceView.getHeight() -50, -30 + this.surfaceView.getWidth(), this.surfaceView.getHeight()-50, this.paint);
+        localCanvas.drawLine(20.0F, -50 + this.surfaceView.getHeight(), 20.0F, 15.0F, this.paint);
+
+        this.surfaceHolder.unlockCanvasAndPost(localCanvas);
+    }
+
+    private void drawShift(int oldX,int oldY,int currentX,int currentY){
+        this.surfaceHolder = this.surfaceView.getHolder();
+        this.paint = new Paint();
+        this.paint.setColor(Color.RED);
+        this.paint.setTextSize(40.0F);
+        this.paint.setStrokeWidth(2.0F);
+        // localCanvas.drawColor(Color.rgb(238, 238, 238));
+        //  localCanvas.drawText("形变量", 0, 3, 25.0F, 40.0F, this.paint);
+        // localCanvas.drawLine(20.0F, this.surfaceView.getHeight() / 2, -30 + this.surfaceView.getWidth(), this.surfaceView.getHeight() / 2, this.paint);
+        // localCanvas.drawLine(20.0F, -30 + this.surfaceView.getHeight(), 20.0F, 15.0F, this.paint);
+        oldX+=20;
+        currentX+=20;
+        oldY= this.surfaceView.getHeight()-50-oldY;
+        currentY= this.surfaceView.getHeight()-50-currentY;
+        Canvas localCanvas = this.surfaceHolder.lockCanvas(new Rect(oldX-1,oldY+1,currentX+1,currentY-1));
+        localCanvas.drawLine(oldX,oldY,currentX,currentY,paint);
+        this.surfaceHolder.unlockCanvasAndPost(localCanvas);
+    }
+
 
 }
