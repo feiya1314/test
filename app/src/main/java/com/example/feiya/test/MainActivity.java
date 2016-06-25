@@ -1,11 +1,14 @@
 package com.example.feiya.test;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.os.StrictMode;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -44,6 +47,7 @@ public class MainActivity extends AppCompatActivity
     private SurfaceView surfaceView;
     private MySurfaceView mySurfaceView;
     private TabLayout tabLayout;
+    private ProgressDialog progressDialog;
 
     private Process process;
     Context mContext;
@@ -145,7 +149,33 @@ public class MainActivity extends AppCompatActivity
         }
         return super.onPrepareOptionsMenu(menu);
     }
-
+    private Handler handler=new Handler(){
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            Toast toast;
+            switch (msg.what){
+                case 0x00:
+                    progressDialog.dismiss();
+                    IsConnceted = true;
+                    invalidateOptionsMenu();
+                    break;
+                case 0x11:
+                    toast = Toast.makeText(getApplicationContext(), "连接服务器端超时==", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    progressDialog.dismiss();
+                    break;
+                case 0x22:
+                    toast = Toast.makeText(getApplicationContext(), "连接失败,服务器端好像没打开==", Toast.LENGTH_LONG);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                    progressDialog.dismiss();
+                    break;
+                default:
+                    break;
+            }
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -164,26 +194,10 @@ public class MainActivity extends AppCompatActivity
         } else if (id == R.id.connect) {
 
             if (WiFiStatus.isWifiConnected(MainActivity.this)) {
-                try {
-                    socket = new Socket();
-                    socket.setSendBufferSize(1024 * 16);
-                    socket.setReceiveBufferSize(1024 * 16);
-                    socket.connect(new InetSocketAddress(WiFiStatus.getHost(MainActivity.this), port), timeout);
-
-                    IsConnceted = true;
-                    invalidateOptionsMenu();
-
-                } catch (SocketTimeoutException e) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "连接服务器端超时==", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    Toast toast = Toast.makeText(getApplicationContext(), "连接失败,服务器端好像没打开==", Toast.LENGTH_LONG);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                    e.printStackTrace();
-                }
+                progressDialog=ProgressDialog.show(MainActivity.this,"","connecting...");
+                progressDialog.setCancelable(true);
+               Thread thread=new Thread(new ConnectThread(handler,MainActivity.this));
+                thread.start();
             } else {
                 Toast toast = Toast.makeText(getApplicationContext(),
                         "wifi还没有打开啊喂！", Toast.LENGTH_LONG);
@@ -307,7 +321,6 @@ public class MainActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
-
 
     @Override
     protected void onDestroy() {
